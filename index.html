@@ -207,6 +207,7 @@ updateScrollEffects();
 
 
 /* Dévoilement des bandes de couleur à l'arrivée dans le viewport */
+const supportsReveal=("IntersectionObserver" in window)&&!window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const tapeElements=[...document.querySelectorAll(".tape-highlight[data-tape]")];
 if(supportsReveal){
  const tapeObserver=new IntersectionObserver((entries,observer)=>{
@@ -232,7 +233,6 @@ if(!prefersReducedMotion){
 /* Apparitions progressives : observer initialisé avant de masquer les éléments */
 const revealSelector=".topbar .brand,.topbar nav a,.hero > *, .section-head > *, .poster,.gallery-note,.intro > *, .services-top > *, .service,.launch > *, .contact > *,footer > *";
 const revealTargets=[...document.querySelectorAll(revealSelector)];
-const supportsReveal=("IntersectionObserver" in window)&&!window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 if(supportsReveal){
  document.documentElement.classList.add("js");
  revealTargets.forEach((element,index)=>{
