@@ -120,6 +120,17 @@ a,button{ -webkit-tap-highlight-color:transparent}
 @media(prefers-reduced-motion:reduce){
  .js .tape-highlight[data-tape]{clip-path:polygon(1% 0%,99% 2%,100% 98%,0% 100%);transition:none}
 }
+\n
+/* Visionneuse : image dominante et taille maximale, sans rogner la photo */
+.photo-lightbox{width:min(1440px,94vw);max-height:94vh}
+.lightbox-layout{grid-template-columns:minmax(0,1.7fr) minmax(220px,.55fr)}
+.lightbox-photo-wrap img{width:100%;height:min(78vh,1000px);max-height:none;aspect-ratio:auto;object-fit:contain}
+.poster,.poster img{cursor:zoom-in;pointer-events:auto}
+@media(max-width:760px){
+ .photo-lightbox{width:96vw;max-height:94vh;padding:14px}
+ .lightbox-layout{grid-template-columns:1fr;gap:14px}
+ .lightbox-photo-wrap img{height:68vh;max-height:none}
+}
 \n</style>
 </head>
 <body>
