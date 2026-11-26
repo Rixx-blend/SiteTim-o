@@ -26,7 +26,8 @@ footer{border-top:1px solid var(--line);padding:22px 5vw;display:flex;justify-co
 /* Coupure nette du mur au début de la section démarche */
 body.story-mode{background-image:none!important;background-color:#e9e6de!important}
 body.story-mode:before{opacity:0}
-\n/* Animations discrètes : entrée, apparition au scroll et micro-interactions */
+
+/* Animations discrètes : entrée, apparition au scroll et micro-interactions */
 html{scroll-behavior:smooth}
 body{background-size:34vw auto;background-position:center top;background-repeat:repeat;background-attachment:fixed;animation:none;transition:background-color 1.15s cubic-bezier(.22,.61,.36,1)}
 .hero .eyebrow{animation:softIn .8s .08s both}
@@ -131,7 +132,8 @@ function updateStoryBackground(){
 window.addEventListener("scroll",updateStoryBackground,{passive:true});
 window.addEventListener("resize",updateStoryBackground);
 updateStoryBackground();
-\n/* À CONFIGURER : remplace cette valeur par l'adresse email de Timéo. */
+
+/* À CONFIGURER : remplace cette valeur par l'adresse email de Timéo. */
 const CONTACT_EMAIL = "ADRESSE_EMAIL_A_CONFIGURER";
 const form=document.getElementById("contactForm");
 form.addEventListener("submit",event=>{
