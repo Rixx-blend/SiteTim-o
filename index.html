@@ -126,7 +126,7 @@ a,button{ -webkit-tap-highlight-color:transparent}
 <dialog class="photo-lightbox" id="photoLightbox" aria-label="Détail de la photographie">
  <button class="lightbox-close" type="button" aria-label="Fermer">×</button>
  <div class="lightbox-layout">
-  <div class="lightbox-photo-wrap"><img id="lightboxImage" src="" alt=""><div class="lightbox-photo-caption" id="lightboxCaption"></div></div>
+  <div class="lightbox-photo-wrap"><img id="lightboxImage" alt=""><div class="lightbox-photo-caption" id="lightboxCaption"></div></div>
   <aside class="lightbox-info">
    <div class="eyebrow">Archive photographique</div>
    <h2 id="lightboxTitle">Photographie</h2>
@@ -206,7 +206,7 @@ if(supportsReveal){
 
 /* Le fond béton reste fixe : le rectangle beige appartient uniquement à la section démarche. */
 
-/* Ouverture des affiches : source exacte de l'image + fiche éditoriale */
+/* Ouverture des photos : injecte la source, le titre et la ville avant affichage */
 const photoDetails=[
  {title:"Lumière urbaine",city:"Ville à préciser",mood:"Lumière de fin de journée"},
  {title:"Dans le mouvement",city:"Ville à préciser",mood:"Circulation et énergie urbaine"},
@@ -216,28 +216,43 @@ const photoDetails=[
  {title:"Instants de ville",city:"Ville à préciser",mood:"Architecture contemporaine"}
 ];
 const photoDialog=document.getElementById("photoLightbox");
+const modalImage=document.getElementById("lightboxImage");
 const photoCards=[...document.querySelectorAll(".poster")];
+
+function openPhotoModal(card,index){
+ const image=card.querySelector("img");
+ if(!image) return;
+ const details=photoDetails[index]||{};
+ const caption=card.querySelector(".poster-caption span");
+ const title=details.title||caption?.textContent?.trim()||image.alt||"Photographie";
+ const city=details.city||"Ville à préciser";
+ const imageUrl=image.src;
+ if(!imageUrl) return;
+
+ modalImage.src=imageUrl;
+ modalImage.alt=image.alt||title;
+ document.getElementById("lightboxCaption").textContent=title;
+ document.getElementById("lightboxTitle").textContent=title;
+ document.getElementById("lightboxLocation").textContent=city;
+ document.getElementById("lightboxMood").textContent=details.mood||"Instant urbain";
+
+ if(!photoDialog.open) photoDialog.showModal();
+}
+
 photoCards.forEach((card,index)=>{
+ const details=photoDetails[index]||{};
+ const caption=card.querySelector(".poster-caption span");
+ const title=details.title||caption?.textContent?.trim()||"Photographie";
  card.setAttribute("role","button");
  card.setAttribute("tabindex","0");
- card.setAttribute("aria-label","Agrandir la photo : "+photoDetails[index].title);
- const openPhoto=()=>{
-  const image=card.querySelector("img");
-  const info=photoDetails[index];
-  const imageSource=image.getAttribute("src");
-  const resolvedImageSource=new URL(imageSource,document.baseURI).href;
-  const modalImage=document.getElementById("lightboxImage");
-  modalImage.removeAttribute("src");
-  modalImage.src=resolvedImageSource;
-  modalImage.alt=image.alt;
-  document.getElementById("lightboxCaption").textContent=info.title;
-  document.getElementById("lightboxTitle").textContent=info.title;
-  document.getElementById("lightboxLocation").textContent=info.city;
-  document.getElementById("lightboxMood").textContent=info.mood;
-  photoDialog.showModal();
- };
- card.addEventListener("click",openPhoto);
- card.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();openPhoto();}});
+ card.setAttribute("aria-label","Agrandir la photo : "+title);
+ card.addEventListener("click",()=>openPhotoModal(card,index));
+ card.addEventListener("keydown",event=>{
+  if(event.key==="Enter"||event.key===" "){
+   event.preventDefault();
+   openPhotoModal(card,index);
+  }
+ });
 });
 document.querySelector(".lightbox-close").addEventListener("click",()=>photoDialog.close());
 photoDialog.addEventListener("click",event=>{if(event.target===photoDialog)photoDialog.close();});
