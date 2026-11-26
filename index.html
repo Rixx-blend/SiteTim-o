@@ -49,8 +49,9 @@ body{background-size:34vw auto;background-position:center top;background-repeat:
 .js .poster.reveal.is-visible{transform:scale(1) rotate(var(--tilt))}
 .js .poster.reveal.is-visible:hover{transform:rotate(0) scale(1.075)}
 .poster{transition:transform .65s cubic-bezier(.2,.8,.2,1),box-shadow .65s,filter .5s}
-.poster img{transition:filter .7s,transform 1.25s cubic-bezier(.16,1,.3,1)}
-.poster:hover img{transform:scale(1.065)}
+.poster img{transition:filter .7s}
+/* Le zoom ne doit jamais recouvrir le passe-partout blanc du tirage. */
+.poster:hover img{transform:none}
 .service{transition:transform .5s cubic-bezier(.2,.8,.2,1),background .4s,box-shadow .5s}
 .service:hover{transform:translateY(-5px) scale(1.015)}
 a,button{ -webkit-tap-highlight-color:transparent}
@@ -67,6 +68,27 @@ a,button{ -webkit-tap-highlight-color:transparent}
  .js .reveal,.js .reveal.is-visible{opacity:1;transform:none;transition:none}
  *,*:before,*:after{scroll-behavior:auto!important;transition:none!important}
 }
+
+/* Visionneuse photo */
+.photo-lightbox{width:min(1120px,calc(100vw - 36px));max-width:none;max-height:calc(100vh - 36px);padding:30px;border:1px solid #ffffff50;background:#e9e6de;color:var(--ink);box-shadow:0 30px 100px #0008;overflow:auto}
+.photo-lightbox::backdrop{background:#171814c9;backdrop-filter:blur(8px)}
+.lightbox-close{position:sticky;float:right;top:0;z-index:2;width:38px;height:38px;border:1px solid var(--line);border-radius:50%;background:#e9e6de;font-size:25px;line-height:1;cursor:pointer}
+.lightbox-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(250px,.65fr);gap:34px;align-items:start}
+.lightbox-photo-wrap{padding:14px;background:#f7f5ee;box-shadow:0 12px 35px #191a1728;transform:rotate(-.5deg)}
+.lightbox-photo-wrap img{display:block;width:100%;max-height:72vh;aspect-ratio:4/5;object-fit:contain;background:#d7d4cb}
+.lightbox-photo-caption{padding:13px 2px 2px;font:10px 'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:#66655e}
+.lightbox-info{padding:40px 0 0}
+.lightbox-info h2{font-size:clamp(34px,4vw,54px);line-height:.95;letter-spacing:-.08em;margin:22px 0 32px}
+.lightbox-meta{display:flex;flex-direction:column;gap:7px;padding:15px 0;border-top:1px solid var(--line)}
+.lightbox-meta strong{font-size:14px;font-weight:500}
+.lightbox-map-label{margin:28px 0 10px;color:#68675f}
+.lightbox-map{height:220px;border:1px solid var(--line);background:#d9ded6;overflow:hidden}
+.lightbox-map iframe{width:100%;height:100%;border:0;filter:saturate(.65)}
+.map-placeholder{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px;color:#555c50}
+.map-placeholder span{font-size:30px;margin-bottom:8px}.map-placeholder strong{font-size:13px}.map-placeholder small{max-width:230px;font:10px/1.5 'DM Mono',monospace;margin-top:8px}
+.poster{cursor:zoom-in}
+@media(max-width:760px){.photo-lightbox{padding:17px}.lightbox-layout{grid-template-columns:1fr;gap:20px}.lightbox-info{padding:8px 0 0}.lightbox-info h2{margin:14px 0 20px}.lightbox-photo-wrap img{max-height:58vh}}
+
 </style>
 </head>
 <body>
@@ -100,6 +122,22 @@ a,button{ -webkit-tap-highlight-color:transparent}
 <div class="form-bottom"><div class="form-note">Aucune obligation : le premier échange sert à définir<br>vos envies et les possibilités.</div><button class="submit" type="submit">Envoyer ma demande ↗</button></div>
 <p class="form-status" id="formStatus" aria-live="polite"></p>
 </form></section>
+
+<dialog class="photo-lightbox" id="photoLightbox" aria-label="Détail de la photographie">
+ <button class="lightbox-close" type="button" aria-label="Fermer">×</button>
+ <div class="lightbox-layout">
+  <div class="lightbox-photo-wrap"><img id="lightboxImage" src="" alt=""><div class="lightbox-photo-caption" id="lightboxCaption"></div></div>
+  <aside class="lightbox-info">
+   <div class="eyebrow">Archive photographique</div>
+   <h2 id="lightboxTitle">Photographie</h2>
+   <div class="lightbox-meta"><span class="mono">LIEU</span><strong id="lightboxLocation">À renseigner</strong></div>
+   <div class="lightbox-meta"><span class="mono">DATE DE PRISE DE VUE</span><strong id="lightboxDate">À renseigner</strong></div>
+   <div class="lightbox-map-label mono">POSITION SUR LA CARTE</div>
+   <div class="lightbox-map" id="lightboxMap"><div class="map-placeholder"><span>⌖</span><strong>Position non renseignée</strong><small>Ajoutez les coordonnées GPS de cette photo dans les données de la galerie.</small></div></div>
+  </aside>
+ </div>
+</dialog>
+
 </main>
 <footer><span>© 2026 TIMÉO MASSOT</span><span>PHOTOGRAPHIE · FRANCE</span><a href="#accueil">RETOUR EN HAUT ↑</a></footer>
 <script>
@@ -130,6 +168,48 @@ if("IntersectionObserver" in window){
 
 
 /* Le fond béton reste fixe : le rectangle beige appartient uniquement à la section démarche. */
+
+/* Ouverture des tirages : image grand format et fiche de prise de vue.
+   Les coordonnées et dates sont volontairement vides tant qu'elles ne sont pas confirmées. */
+const photoDetails = [
+ {title:"Lumière urbaine",location:"Lieu à renseigner",date:"Date à renseigner",lat:null,lon:null},
+ {title:"Dans le mouvement",location:"Lieu à renseigner",date:"Date à renseigner",lat:null,lon:null},
+ {title:"Béton & lignes",location:"Lieu à renseigner",date:"Date à renseigner",lat:null,lon:null},
+ {title:"Silhouettes",location:"Lieu à renseigner",date:"Date à renseigner",lat:null,lon:null},
+ {title:"Heure bleue",location:"Lieu à renseigner",date:"Date à renseigner",lat:null,lon:null},
+ {title:"Instants de ville",location:"Lieu à renseigner",date:"Date à renseigner",lat:null,lon:null}
+];
+const photoDialog=document.getElementById("photoLightbox");
+const photoCards=[...document.querySelectorAll(".poster")];
+photoCards.forEach((card,index)=>{
+ card.setAttribute("role","button");
+ card.setAttribute("tabindex","0");
+ card.setAttribute("aria-label","Agrandir la photo : "+photoDetails[index].title);
+ const openPhoto=()=>{
+  const image=card.querySelector("img");
+  const info=photoDetails[index];
+  document.getElementById("lightboxImage").src=image.currentSrc||image.src;
+  document.getElementById("lightboxImage").alt=image.alt;
+  document.getElementById("lightboxCaption").textContent=info.title;
+  document.getElementById("lightboxTitle").textContent=info.title;
+  document.getElementById("lightboxLocation").textContent=info.location;
+  document.getElementById("lightboxDate").textContent=info.date;
+  const map=document.getElementById("lightboxMap");
+  if(Number.isFinite(info.lat)&&Number.isFinite(info.lon)){
+   const delta=.035;
+   const bbox=[info.lon-delta,info.lat-delta,info.lon+delta,info.lat+delta].join("%2C");
+   map.innerHTML='<iframe title="Carte de localisation de la photo" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox='+bbox+'&layer=mapnik&marker='+info.lat+'%2C'+info.lon+'"></iframe>';
+  }else{
+   map.innerHTML='<div class="map-placeholder"><span>⌖</span><strong>Position non renseignée</strong><small>Ajoutez les coordonnées GPS de cette photo dans les données de la galerie.</small></div>';
+  }
+  photoDialog.showModal();
+ };
+ card.addEventListener("click",openPhoto);
+ card.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();openPhoto();}});
+});
+document.querySelector(".lightbox-close").addEventListener("click",()=>photoDialog.close());
+photoDialog.addEventListener("click",event=>{if(event.target===photoDialog)photoDialog.close();});
+
 
 /* À CONFIGURER : remplace cette valeur par l'adresse email de Timéo. */
 const CONTACT_EMAIL = "ADRESSE_EMAIL_A_CONFIGURER";
