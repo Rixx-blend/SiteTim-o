@@ -120,7 +120,8 @@ a,button{ -webkit-tap-highlight-color:transparent}
 @media(prefers-reduced-motion:reduce){
  .js .tape-highlight[data-tape]{clip-path:polygon(1% 0%,99% 2%,100% 98%,0% 100%);transition:none}
 }
-\n
+
+
 /* Visionneuse : image dominante et taille maximale, sans rogner la photo */
 .photo-lightbox{width:min(1440px,94vw);max-height:94vh}
 .lightbox-layout{grid-template-columns:minmax(0,1.7fr) minmax(220px,.55fr)}
@@ -131,7 +132,8 @@ a,button{ -webkit-tap-highlight-color:transparent}
  .lightbox-layout{grid-template-columns:1fr;gap:14px}
  .lightbox-photo-wrap img{height:68vh;max-height:none}
 }
-\n</style>
+
+</style>
 </head>
 <body>
 <div class="scroll-progress" aria-hidden="true"><span class="scroll-progress-fill" id="scrollProgressFill"></span></div>
@@ -222,7 +224,8 @@ if(supportsReveal){
 }else{
  tapeElements.forEach(element=>element.classList.add("is-tape-visible"));
 }
-\n/* Inclinaisons naturelles et différentes pour les six affiches */
+
+/* Inclinaisons naturelles et différentes pour les six affiches */
 if(!prefersReducedMotion){
  document.querySelectorAll(".poster").forEach((poster,index)=>{
   const angle=(Math.random()*4-2);
