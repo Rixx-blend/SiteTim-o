@@ -23,8 +23,7 @@ footer{border-top:1px solid var(--line);padding:22px 5vw;display:flex;justify-co
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
 
 
-/* Transition béton vers fond uni à partir de la section démarche */
-body,body:before{transition:background-color 1.15s cubic-bezier(.22,.61,.36,1),background-image 1.15s cubic-bezier(.22,.61,.36,1),opacity 1.15s cubic-bezier(.22,.61,.36,1)}
+/* Coupure nette du mur au début de la section démarche */
 body.story-mode{background-image:none!important;background-color:#e9e6de!important}
 body.story-mode:before{opacity:0}
 \n/* Animations discrètes : entrée, apparition au scroll et micro-interactions */
@@ -120,14 +119,18 @@ if("IntersectionObserver" in window){
 }
 
 
-/* Le fond béton laisse place au fond uni à l'arrivée sur la démarche */
+/* Le mur s'arrête exactement quand la section démarche arrive sous la navigation.
+   En remontant au-dessus de cette limite, le béton réapparaît. */
 const storySection=document.getElementById("demarche");
-if(storySection && "IntersectionObserver" in window){
- const storyObserver=new IntersectionObserver(entries=>{
-  entries.forEach(entry=>document.body.classList.toggle("story-mode",entry.isIntersecting));
- },{threshold:0.18});
- storyObserver.observe(storySection);
+const topbar=document.querySelector(".topbar");
+function updateStoryBackground(){
+ if(!storySection) return;
+ const boundary=storySection.offsetTop-(topbar ? topbar.offsetHeight : 0);
+ document.body.classList.toggle("story-mode",window.scrollY>=boundary);
 }
+window.addEventListener("scroll",updateStoryBackground,{passive:true});
+window.addEventListener("resize",updateStoryBackground);
+updateStoryBackground();
 \n/* À CONFIGURER : remplace cette valeur par l'adresse email de Timéo. */
 const CONTACT_EMAIL = "ADRESSE_EMAIL_A_CONFIGURER";
 const form=document.getElementById("contactForm");
