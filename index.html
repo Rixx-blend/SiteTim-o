@@ -22,9 +22,14 @@ footer{border-top:1px solid var(--line);padding:22px 5vw;display:flex;justify-co
 @media(max-width:520px){.topbar{height:64px;padding:0 5vw}.brand{font-size:16px}nav{gap:13px}nav a{font-size:10px}.nav-cta{padding:9px 11px}.hero{padding:47px 0 32px}h1{font-size:clamp(49px,14vw,76px)}.hero-note{font-size:12px}.wall{gap:25px 5%;padding-bottom:42px}.poster{padding:6px 6px 8px}.poster:before{top:-5px;width:38px;height:10px}.poster-caption{font-size:7px}.section-head{font-size:10px}.intro{padding:52px 0}.intro-copy{font-size:14px}.services{padding:52px 0}.services-top{align-items:flex-start;flex-direction:column;gap:12px}.service{padding:22px;min-height:205px}.service h3{font-size:23px}.launch{margin-bottom:55px;padding:25px 22px}.launch-btn{width:100%;text-align:center}.contact{padding-top:52px}.contact-form{grid-template-columns:1fr}.field.full,.form-bottom,.form-status{grid-column:1}.form-bottom{align-items:flex-start;flex-direction:column}.submit{width:100%}footer{padding:18px 5vw;font-size:8px;gap:10px;flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
 
-/* Animations discrètes : entrée, apparition au scroll et micro-interactions */
+
+/* Transition béton vers fond uni à partir de la section démarche */
+body,body:before{transition:background-color 1.15s cubic-bezier(.22,.61,.36,1),background-image 1.15s cubic-bezier(.22,.61,.36,1),opacity 1.15s cubic-bezier(.22,.61,.36,1)}
+body.story-mode{background-image:none!important;background-color:#e9e6de!important}
+body.story-mode:before{opacity:0}
+\n/* Animations discrètes : entrée, apparition au scroll et micro-interactions */
 html{scroll-behavior:smooth}
-body{background-size:55vw auto;background-position:top left;background-repeat:repeat;background-attachment:fixed;animation:none}
+body{background-size:34vw auto;background-position:center top;background-repeat:repeat;background-attachment:fixed;animation:none;transition:background-color 1.15s cubic-bezier(.22,.61,.36,1)}
 .hero .eyebrow{animation:softIn .8s .08s both}
 .hero h1{animation:softIn 1s .18s both}
 .hero-note{animation:softIn .9s .38s both}
@@ -46,7 +51,7 @@ a,button{ -webkit-tap-highlight-color:transparent}
 .field input,.field select,.field textarea{transition:border-color .3s,box-shadow .3s}
 .topbar{transition:background .35s,box-shadow .35s}
 .topbar:has(+ main) {box-shadow:0 2px 18px #191a1708}
-@media(max-width:800px){body{background-size:95vw auto;background-position:top left;background-repeat:repeat;background-attachment:scroll;animation:none}}
+@media(max-width:800px){body{background-size:62vw auto;background-position:center top;background-repeat:repeat;background-attachment:scroll;animation:none}}
 @media(prefers-reduced-motion:reduce){
  body{animation:none!important}
  .hero .eyebrow,.hero h1,.hero-note{animation:none!important}
@@ -114,7 +119,16 @@ if("IntersectionObserver" in window){
   revealTargets.forEach(element=>element.classList.add("is-visible"));
 }
 
-/* À CONFIGURER : remplace cette valeur par l'adresse email de Timéo. */
+
+/* Le fond béton laisse place au fond uni à l'arrivée sur la démarche */
+const storySection=document.getElementById("demarche");
+if(storySection && "IntersectionObserver" in window){
+ const storyObserver=new IntersectionObserver(entries=>{
+  entries.forEach(entry=>document.body.classList.toggle("story-mode",entry.isIntersecting));
+ },{threshold:0.18});
+ storyObserver.observe(storySection);
+}
+\n/* À CONFIGURER : remplace cette valeur par l'adresse email de Timéo. */
 const CONTACT_EMAIL = "ADRESSE_EMAIL_A_CONFIGURER";
 const form=document.getElementById("contactForm");
 form.addEventListener("submit",event=>{
