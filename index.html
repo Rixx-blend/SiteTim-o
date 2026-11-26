@@ -23,17 +23,18 @@ footer{border-top:1px solid var(--line);padding:22px 5vw;display:flex;justify-co
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
 
 
-/* Rectangle beige posé sur le mur, uniquement derrière la section démarche */
-.intro{position:relative;isolation:isolate}
-.intro:before{
+/* Grand rectangle beige : de la section démarche jusqu'au bas du site */
+main{position:relative;isolation:isolate}
+main:after{
  content:"";
  position:absolute;
  z-index:-1;
- top:0;
- bottom:0;
+ top:var(--paper-start,0px);
+ bottom:-110px;
  left:calc((100vw - 100%)/-2);
  width:100vw;
  background:#e9e6de;
+ pointer-events:none;
 }
 
 /* Animations discrètes : entrée, apparition au scroll et micro-interactions */
@@ -257,6 +258,18 @@ photoCards.forEach((card,index)=>{
 document.querySelector(".lightbox-close").addEventListener("click",()=>photoDialog.close());
 photoDialog.addEventListener("click",event=>{if(event.target===photoDialog)photoDialog.close();});
 
+
+/* Aligne le début du grand fond beige sur le haut de la section démarche. */
+const paperMain=document.querySelector("main");
+const paperIntro=document.querySelector(".intro");
+function updatePaperStart(){
+ if(!paperMain||!paperIntro)return;
+ const top=paperIntro.getBoundingClientRect().top+window.scrollY-(paperMain.getBoundingClientRect().top+window.scrollY);
+ paperMain.style.setProperty("--paper-start",top+"px");
+}
+updatePaperStart();
+window.addEventListener("load",updatePaperStart);
+window.addEventListener("resize",updatePaperStart);
 
 /* Formulaire Formspree : remplace l'identifiant par celui fourni dans ton tableau de bord Formspree.
    Format attendu : https://formspree.io/f/xxxxxxxx */
